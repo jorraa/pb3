@@ -1,0 +1,11 @@
+start: npm init
+Installs:
+npm install express --save
+npm install --save-dev nodemon
+
+package.json: 
+  "scripts": {
+    "start": "node index.js", // npm start 
+    "dev": "nodemon index.js", // npm run dev
+    ...
+  }
