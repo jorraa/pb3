@@ -1,0 +1,24 @@
+{
+  "name": "pb3",
+  "version": "0.0.1",
+  "description": "hy fullstackopen osa3 phonebook",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jorraa/pb3"
+  },
+  "author": "Jorma Raatikainen",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.2"
+  }
+}
