@@ -42,6 +42,7 @@ app.get('/api/persons', (req, res) => {
   res.json(persons)
 })
 app.get('/api/info', (req, res) => {
+  console.log("apiInfo")
   res.contentType('text/plain')
   res.end("Phonebook has info for " + persons.length + " people\n\n" +
         new Date()
