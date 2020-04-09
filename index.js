@@ -1,7 +1,8 @@
+const cors = require('cors')
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
-const cors = require('cors')
+
 
 app.use(cors())
 app.use(express.json()) 
@@ -13,6 +14,7 @@ morgan.token('postBody', function getBody (req) {
   }
 })
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :postBody'))
+
 
 let persons = [
   {
@@ -38,7 +40,7 @@ let persons = [
 ]
 
 app.get('/api/persons', (req, res) => {
-  console.log("persons", persons)
+  console.log("persooonat", persons)
   res.json(persons)
 })
 app.get('/api/info', (req, res) => {
@@ -77,9 +79,13 @@ app.post('/api/persons', (request, response) => {
   const number =  request.body.number
   
   if (!name) {
-    return response.status(400).json({ 
+    resp= response.status(400).json({ 
       error: 'name missing' 
+
     })
+    console.log("json", resp.json)
+    console.log("resp.xyz", resp.xyz)
+    return resp
   }
 
   if (!number) {
@@ -89,6 +95,9 @@ app.post('/api/persons', (request, response) => {
   }
   console.log("persons.findIndex((p) => p.name===name", persons.findIndex((p) => p.name===name))
   if(persons.findIndex((p) => p.name===name) > -1){
+console.log("err", response.status(400).json({ 
+  error: 'name must be unique'
+})  )    
     return response.status(400).json({ 
       error: 'name must be unique'
     })  
