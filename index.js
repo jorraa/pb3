@@ -9,11 +9,11 @@ const cors = require('cors')
 
 app.use(cors())
 app.use(express.static('build'))
-app.use(express.json()) 
-//app.use(logger) 
+app.use(express.json())
+//app.use(logger)
 
 morgan.token('postBody', function getBody (req) {
-  if(req.method == 'POST'){
+  if(req.method === 'POST'){
     return JSON.stringify(req.body)
   }
 })
@@ -22,27 +22,31 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :p
 app.get('/api/persons', (request, response, next) => {
   Person.find({}).then(persons => {
     response.json(persons.map(person => person.toJSON()))
-  })
+  }).catch(error => next(error))
 })
 
 app.post('/api/persons', (request, response, next) => {
   const name = request.body.name
   const number =  request.body.number
-  
+
   if (!name) {
     return response.status(400)
-     .send({ error: 'name missingQQ' })
+      .send({ error: 'name missingQQ' })
   }
   if (!number) {
     return response.status(400)
-    .send({ 
-      error: 'number missingAA' 
-    })
+      .send({
+        error: 'number missing'
+      })
   }
-  let existingPerson 
-  Person.find({name: name})
+  let existingPerson
+  Person.find({ name: name })
     .then(person => existingPerson = person)
-    .catch(error => existingPerson = null)
+    .catch(error => {
+      existingPerson = null
+      next(error)
+    }
+    )
   if(!existingPerson) {  //normal case
     const person = new Person({
       name: name,
@@ -51,32 +55,31 @@ app.post('/api/persons', (request, response, next) => {
     })
 
     person.save()
-    .then(savedNote => savedNote.toJSON())
-    .then(savedAndFormattedNote => {
-      response.json(savedAndFormattedNote)
-    }) 
-    .catch(error => next(error))
+      .then(savedNote => savedNote.toJSON())
+      .then(savedAndFormattedNote => {
+        response.json(savedAndFormattedNote)
+      } )
+      .catch(error => next(error))
   }else{ // updating existing
     existingPerson.number = number
     Person.findByIdAndUpdate(existingPerson.id, existingPerson, { new: true })
-    .then(updatedNote => {
-      response.json(updatedNote.toJSON())
-    })
-    .catch(error => next(error))
+      .then(updatedNote => {
+        response.json(updatedNote.toJSON())
+      } )
+      .catch(error => next(error))
   }
-})
+} )
 
 app.get('/api/info', (request, response, next) => {
-  console.log("apiInfo")
+  console.log('apiInfo')
   Person.find({})
-  .then(persons => {
-    console.log("people", persons)    
-    response.contentType('text/plain')
-    response.end("Phonebook has info for " + persons.length + " people\n\n" +
+    .then(persons => {
+      response.contentType('text/plain')
+      response.end('Phonebook has info for ' + persons.length + ' people\n\n' +
         new Date()
-    )
-  })
-  .catch(error => next(error))
+      )
+    })
+    .catch(error => next(error))
 })
 
 app.get('/api/persons/:id', (request, response, next) => {
@@ -88,14 +91,12 @@ app.get('/api/persons/:id', (request, response, next) => {
         response.status(404).end()
       }
     })
-    .catch(error => next(error)) 
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (request, response, next) => {
   Person.findByIdAndRemove(request.params.id)
-    .then(result => {
-      response.status(204).end()
-    })
+    .then(response.status(204).end())
     .catch(error => next(error))
 })
 
@@ -108,9 +109,7 @@ app.put('/api/persons/:id', (request, response, next) => {
   }
 
   Person.findByIdAndUpdate(request.params.id, person, { new: true })
-    .then(updatedNote => {
-      response.json(updatedNote.toJSON())
-    })
+    .then(updatedNote => response.json(updatedNote.toJSON()))
     .catch(error => next(error))
 })
 
@@ -132,6 +131,8 @@ const errorHandler = (error, request, response, next) => {
 
 app.use(errorHandler)
 
+/*eslint no-undef: "error"*/
+/*eslint-env node*/
 const PORT = process.env.PORT
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
